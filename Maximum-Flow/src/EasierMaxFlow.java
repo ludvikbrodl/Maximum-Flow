@@ -9,6 +9,7 @@ public class EasierMaxFlow {
 	private static int[] parent;
 	private static Queue<Integer> queue;
 	private static boolean[] visited;
+	private static int[][] residualGraph;
 
 	public static void main(String[] args) throws Exception {
 		parse();
@@ -16,6 +17,7 @@ public class EasierMaxFlow {
 		visited = new boolean[NUMBER_OF_NODES];
 		queue = new LinkedList<Integer>();
 		System.out.println(fordFulkerson(graph, 0, 54));
+		System.out.println(bfsNew(0, 54));
 	}
 
 	public static int fordFulkerson(int graph[][], int source, int destination) {
@@ -23,7 +25,7 @@ public class EasierMaxFlow {
 		int maxFlow = 0;
 		int pathFlow;
 
-		int[][] residualGraph = new int[NUMBER_OF_NODES][NUMBER_OF_NODES];
+		residualGraph = new int[NUMBER_OF_NODES][NUMBER_OF_NODES];
 		for (int sourceVertex = 0; sourceVertex < NUMBER_OF_NODES; sourceVertex++) {
 			for (int destinationVertex = 0; destinationVertex < NUMBER_OF_NODES; destinationVertex++) {
 				residualGraph[sourceVertex][destinationVertex] = graph[sourceVertex][destinationVertex];
@@ -43,18 +45,24 @@ public class EasierMaxFlow {
 			}
 			maxFlow += pathFlow;
 		}
+
 		for (int i = 0; i < residualGraph[0].length; i++) {
 			for (int j = 0; j < residualGraph.length; j++) {
-				System.out.print(residualGraph[i][j] + " ");
+				 if(residualGraph[i][j] == 0 && residualGraph[j][i] != 0){
+//				 System.out.println(residualGraph[j][i]);
+				System.out.println((i) + " " + (j) + " : "
+						+ residualGraph[j][i]);
+				 
+				 }
 			}
-			System.out.println();
+//			System.out.println();
 		}
 		return maxFlow;
 	}
 
 	public static boolean bfs(int source, int goal, int graph[][]) {
 		boolean pathFound = false;
-		int destination, element;
+		int element;
 
 		for (int vertex = 0; vertex < NUMBER_OF_NODES; vertex++) {
 			parent[vertex] = -1;
@@ -67,16 +75,13 @@ public class EasierMaxFlow {
 
 		while (!queue.isEmpty()) {
 			element = queue.remove();
-			destination = 0;
+			for (int index = 0; index < NUMBER_OF_NODES; index++) {
+				if (graph[element][index] > 0 && !visited[index]) {
+					parent[index] = element;
+					queue.add(index);
+					visited[index] = true;
 
-			while (destination < NUMBER_OF_NODES) {
-				if ((graph[element][destination] > 0 || graph[element][destination] == -1)
-						&& !visited[destination]) {
-					parent[destination] = element;
-					queue.add(destination);
-					visited[destination] = true;
 				}
-				destination++;
 			}
 		}
 		if (visited[goal]) {
@@ -85,6 +90,36 @@ public class EasierMaxFlow {
 		return pathFound;
 	}
 
+	
+	public static boolean bfsNew(int source, int goal) {
+		boolean pathFound = false;
+		int element;
+
+		for (int vertex = 0; vertex < NUMBER_OF_NODES; vertex++) {
+			parent[vertex] = -1;
+			visited[vertex] = false;
+		}
+
+		queue.add(source);
+		parent[source] = -1;
+		visited[source] = true;
+
+		while (!queue.isEmpty()) {
+			element = queue.remove();
+			for (int index = 0; index < NUMBER_OF_NODES; index++) {
+				if (residualGraph[element][index] > 0 && !visited[index]) {
+					parent[index] = element;
+					queue.add(index);
+					visited[index] = true;
+
+				}
+			}
+		}
+		if (visited[goal]) {
+			pathFound = true;
+		}
+		return pathFound;
+	}
 	public static void parse() throws Exception {
 		FileReader fr = new FileReader("rail.txt");
 		BufferedReader br = new BufferedReader(fr);
@@ -102,8 +137,8 @@ public class EasierMaxFlow {
 			int row = Integer.parseInt(split[1]);
 			int weight = Integer.parseInt(split[2]);
 			if (weight == -1) {
-				weight = Integer.MAX_VALUE;
-			} 
+				weight = 1000;
+			}
 			graph[column][row] = weight;
 			graph[row][column] = weight;
 			line = br.readLine();
