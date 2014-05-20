@@ -1,7 +1,7 @@
 import java.io.BufferedReader;
-import java.io.File;
+//import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
+//import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -19,12 +19,12 @@ public class EasierMaxFlow {
 		parent = new int[NUMBER_OF_NODES];
 		visited = new boolean[NUMBER_OF_NODES];
 		queue = new LinkedList<Integer>();
-		System.out.println(fordFulkerson(graph, 0, 54));
-		System.out.println("END");
-		System.out.println(bfsNew(0, 54));
+		System.out.println("Max flow = " + fordFulkerson(graph, 0, 54));
+		bfsCut(0, 54);
 	}
 
-	public static int fordFulkerson(int graph[][], int source, int destination) throws IOException {
+	public static int fordFulkerson(int graph[][], int source, int destination)
+			throws IOException {
 		int u, v;
 		int maxFlow = 0;
 		int pathFlow;
@@ -47,26 +47,25 @@ public class EasierMaxFlow {
 				residualGraph[u][v] -= pathFlow;
 				residualGraph[v][u] += pathFlow;
 			}
-			System.out.println("Path " + pathFlow);
 			maxFlow += pathFlow;
 		}
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < residualGraph[0].length; i++) {
-			for (int j = 0; j < residualGraph.length; j++) {
-				sb.append(residualGraph[j][i] + "\t");
-				if (residualGraph[i][j] != residualGraph[j][i]) {
-					System.out.println((i) + " " + (j) + " : "
-							+ (residualGraph[j][i] - residualGraph[i][j]) / 2);
-
-				}
-
-			}
-			// System.out.println();
-			sb.append("\n");
-		}
-		FileWriter f = new FileWriter(new File("matrix.txt"));
-		f.write(sb.toString());
-		f.close();
+		// StringBuilder sb = new StringBuilder();
+		// for (int i = 0; i < residualGraph[0].length; i++) {
+		// for (int j = 0; j < residualGraph.length; j++) {
+		// sb.append(residualGraph[j][i] + "\t");
+		// if (residualGraph[i][j] != residualGraph[j][i]) {
+		// System.out.println((i) + " " + (j) + " : "
+		// + (residualGraph[j][i] - residualGraph[i][j]) / 2);
+		//
+		// }
+		//
+		// }
+		// // System.out.println();
+		// sb.append("\n");
+		// }
+		// FileWriter f = new FileWriter(new File("matrix.txt"));
+		// f.write(sb.toString());
+		// f.close();
 		return maxFlow;
 	}
 
@@ -100,44 +99,34 @@ public class EasierMaxFlow {
 		return pathFound;
 	}
 
-	public static boolean bfsNew(int source, int goal) {
-		boolean pathFound = false;
+	public static void bfsCut(int source, int goal) {
 		int element;
-
 		for (int vertex = 0; vertex < NUMBER_OF_NODES; vertex++) {
 			parent[vertex] = -1;
 			visited[vertex] = false;
 		}
-
 		queue.add(source);
 		parent[source] = -1;
 		visited[source] = true;
-
 		while (!queue.isEmpty()) {
 			element = queue.remove();
 			for (int index = 0; index < NUMBER_OF_NODES; index++) {
-				
 
 				if (residualGraph[element][index] > 0 && !visited[index]) {
 					parent[index] = element;
 					queue.add(index);
 					visited[index] = true;
-					System.out.println(element);
-				} 
+				}
 			}
 		}
 		for (int i = 0; i < visited.length; i++) {
-//			for (int i = 0; i < V; i++)
-//			      for (int j = 0; j < V; j++)
-//			         if (visited[i] && !visited[j] && graph[i][j])
-//			              cout << i << " - " << j << endl;
-			System.out.println(i + " : " + visited[i]);
-			
+			for (int j = 0; j < visited.length; j++) {
+				if (visited[i] && !visited[j] && (graph[i][j] > 0)) {
+					System.out.println(i + " " + j + " " + graph[i][j]);
+				}
+			}
+
 		}
-		if (visited[goal]) {
-			pathFound = true;
-		}
-		return pathFound;
 	}
 
 	public static void parse() throws Exception {
@@ -164,12 +153,6 @@ public class EasierMaxFlow {
 			line = br.readLine();
 		}
 
-		// for (int i = 0; i < graph[0].length; i++) {
-		// for (int j = 0; j < graph.length; j++) {
-		// System.out.print(graph[i][j] + " ");
-		// }
-		// System.out.println();
-		// }
 	}
 
 }
